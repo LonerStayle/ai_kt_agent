@@ -1,0 +1,7 @@
+sources:
+  - name: "HiKorea Main"
+    url: "https://www.hikorea.go.kr/Main.pt?locale=en"
+    file: "hikorea_main_en.pdf"
+    type: "pdf"
+    lang: "en"
+

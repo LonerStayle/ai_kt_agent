@@ -1,7 +1,11 @@
-import torch
-
+import torch, os
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 QDRANT_URL = "http://localhost:6333"
-COLLECTION_NAME = ""
+COLLECTION_NAME = "kpop_demon_hunters"
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__)) 
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+MODEL_NAME = "kt-midm-base-q4"
