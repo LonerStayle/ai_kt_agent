@@ -1,9 +1,10 @@
+import src.common.GlobalSetting as gl
 import os, uuid, json, logging
 from tqdm import tqdm
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from FlagEmbedding import BGEM3FlagModel
-from common import GlobalSetting
+
 
 
 # 로그 세팅했습니다.
@@ -19,7 +20,7 @@ def get_embeddings(texts):
 
 
 # 인덱싱 실행 함수 
-PARSED_FILE = os.path.join(GlobalSetting.DATA_DIR, "all_chunk_list.jsonl")
+PARSED_FILE = os.path.join(gl.DATA_DIR, "all_chunk_list.jsonl")
 def run_inddexing(batch_size=32):
 
     if not os.path.exists(PARSED_FILE):
@@ -34,30 +35,33 @@ def run_inddexing(batch_size=32):
 
 
     # Qdrent 벡터 DB 세팅(URL 은 일단 로컬 기준 )
-    client = QdrantClient(url=GlobalSetting.QDRANT_URL)
+    client = QdrantClient(url=gl.QDRANT_URL)
 
     # 벡터 디비구조는 컬렉션(폴더와 비슷)과 데이터로 되어있어서 아래처럼 이름 넣어줘야되요 
     client.recreate_collection(
-        collection_name=GlobalSetting.COLLECTION_NAME,
+        collection_name=gl.COLLECTION_NAME,
         vectors_config=VectorParams(size=vector_size,distance=Distance.COSINE)
     )
     
-    segments = [json.load(line) for line in open(PARSED_FILE,"r",encoding="utf-8") ]
+    with open(PARSED_FILE, "r", encoding="utf-8") as f:
+        segments = [json.loads(line) for line in f if line.strip()]
+        
+    # segments = [json.load(line) for line in open(PARSED_FILE,"r",encoding="utf-8") ]
     for i in tqdm(range(0, len(segments), batch_size), desc = "indexing"):
         chunk = segments[i:i+batch_size]
         texts = [d["text"] for d in chunk]
         vectors = get_embeddings(texts)
         points = []
         for d, v in zip(chunk, vectors):
-            points[
-                PointStruct(id=str(uuid.uuid4(), vector = v, payload = d))
-            ]
+            points.append(PointStruct(id=str(uuid.uuid4()), vector = v, payload = d))
 
         try: 
-            client.upsert(collection_name=GlobalSetting.COLLECTION_NAME, points=points)
+            client.upsert(collection_name=gl.COLLECTION_NAME, points=points)
         except Exception as e:
             logger.error(f"Failed batch {i}: {e}")
             continue
         
-    total = client.count(collection_name=GlobalSetting.COLLECTION_NAME).count
+    total = client.count(collection_name=gl.COLLECTION_NAME).count
     logger.info(f"Indexing complete. Total vectors: {total}")
+
+run_inddexing()

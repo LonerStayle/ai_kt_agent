@@ -1,4 +1,5 @@
-from common.LLMType import LLMType
+from src.common.LLMType import LLMType
+
 
 travel_system_prompt = """
 너는 K-컬처 여행 & 기념품 추천 전문 AI 에이전트야.
@@ -19,12 +20,26 @@ travel_system_prompt = """
 - 불필요한 추측은 하지 않고, 자료에 근거
 """
 
+tool_selection_prompt = """
+너는 K-컬처 여행 & 기념품 추천 AI 에이전트야.
+아래 사용자 요청을 보고, 어떤 툴을 쓸지 결정해.
+
+툴 목록:
+- search: 장소 정보가 필요할 때
+- route: 여행 루트가 필요할 때
+- souvenir: 기념품 정보가 필요할 때
+
+출력 형식(JSON):
+{"action": "툴이름", "input": "툴에 넣을 값"}
+"""
+
 
 def selected_places_to_text(
         selected_places: list[str]
 ): 
     if not selected_places: raise ValueError("선택된 장소가 없습니다.")
     return ", ".join(place.name for place in selected_places)
+
 
 
 def build_find_rag_prompts(
@@ -39,9 +54,10 @@ def build_find_rag_prompts(
 
 
 
+
 def build_question_prompts(
     selected_places: list[str],
-    context_docs: list[dict],
+    context_docs: list[dict]
 ):
     # 장소 후보 정하지 않으면 리턴
     if not selected_places: raise ValueError("선택된 장소가 없습니다.")

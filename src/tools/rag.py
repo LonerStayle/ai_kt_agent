@@ -1,6 +1,6 @@
 import os, json, heapq
-import common.GlobalSetting as gl
-from pipe_lines.index import get_embeddings
+import src.common.GlobalSetting as gl
+from src.pipe_lines.index import get_embeddings
 from rank_bm25 import BM25Okapi
 
 from qdrant_client import QdrantClient

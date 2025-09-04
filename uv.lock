@@ -42,6 +42,7 @@ dependencies = [
     { name = "pypdf" },
     { name = "qdrant-client" },
     { name = "rank-bm25" },
+    { name = "safetensors" },
     { name = "torch" },
     { name = "transformers" },
 ]
@@ -59,6 +60,7 @@ requires-dist = [
     { name = "pypdf", specifier = ">=6.0.0" },
     { name = "qdrant-client", specifier = ">=1.15.1" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
+    { name = "safetensors", specifier = ">=0.6.2" },
     { name = "torch", specifier = ">=2.8.0" },
     { name = "transformers", specifier = ">=4.56.0" },
 ]
