@@ -1,4 +1,4 @@
 from enum import Enum
 class SelectImage(Enum):
-    A = "A"
-    B = "B"
+    A = "성수"
+    B = "강남"

@@ -24,7 +24,7 @@ def send_prompt(selected_places: list[SelectImage]):
         ],
         stream=True,
         options={
-            "num_predict":128
+            "num_predict":1000
         }
     )
 
@@ -45,7 +45,7 @@ def send_prompt(selected_places: list[SelectImage]):
         messages=messages,
         stream=True,
         options={
-        "num_predict": 128  
+            "num_predict": 1000  
         }
     ):         
         if isinstance(chunk, tuple): chunk = chunk[0]
