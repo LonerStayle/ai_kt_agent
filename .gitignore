@@ -10,3 +10,5 @@ wheels/
 .venv
 
 src/ai_model
+src/data/pdf
+.DS_Store

@@ -1,7 +1,131 @@
 sources:
   - name: "HiKorea Main"
     url: "https://www.hikorea.go.kr/Main.pt?locale=en"
-    file: "hikorea_main_en.pdf"
+    file: "./pdf/hikorea_main_en.pdf"
     type: "pdf"
     lang: "en"
 
+  - name: "Bukchon Hanok Village Map & Guide"
+    type: "pdf"
+    file: "./pdf/bukchon.pdf"
+    lang: "ko,en"
+
+  - name: "Seoul City Wall Guide (Incl. Naksan Section)"
+    type: "pdf"
+    file: "./pdf/wall.pdf"
+    lang: "en"
+
+  - name: "Seoul Hiking Guide (Namsan · Naksan · Trails)"
+    type: "pdf"
+    file: "./pdf/wall2.pdf"
+    lang: "en"
+
+  - name: "COEX Facility Guide"
+    type: "pdf"
+    file: "./pdf/coex.pdf"
+    lang: "en"
+
+  - name: "Cheongdam / Hangang Nightview Guide (Playlist-style)"
+    type: "pdf"
+    file: "./pdf/chungdam.pdf"
+    lang: "en"
+
+  - name: "Olympic Park & Jamsil Sports Complex Guide/Map"
+    type: "pdf"
+    file: "./pdf/olympic.pdf"
+    lang: "ko,en"
+
+  - name: "Olympic Park Visitor Guide (Supplement)"
+    type: "pdf"
+    file: "./pdf/olympic2.pdf"
+    lang: "ko,en"
+
+  - name: "개요"
+    type: "pdf"
+    file: "./pdf/개요.pdf"
+    lang: "ko,en"
+
+  - name: "굿즈 기사"
+    type: "pdf"
+    file: "./pdf/굿즈 기사.pdf"
+    lang: "ko,en"
+
+  - name: "굿즈 기사2"
+    type: "pdf"
+    file: "./pdf/굿즈 기사2.pdf"
+    lang: "ko,en"
+
+  - name: "굿즈 기사3"
+    type: "pdf"
+    file: "./pdf/굿즈 기사3.pdf"
+    lang: "ko,en"
+
+  - name: "굿즈 기사4"
+    type: "pdf"
+    file: "./pdf/굿즈 기사4.pdf"
+    lang: "ko,en"
+
+  - name: "기사"
+    type: "pdf"
+    file: "./pdf/기사.pdf"
+    lang: "ko,en"
+
+  - name: "비평서"
+    type: "pdf"
+    file: "./pdf/비평서.pdf"
+    lang: "ko,en"
+
+  - name: "스토리"
+    type: "pdf"
+    file: "./pdf/스토리.pdf"
+    lang: "ko,en"
+
+  - name: "제작노트_"
+    type: "pdf"
+    file: "./pdf/제작노트_.pdf"
+    lang: "ko,en"
+
+  - name: "제작자 인터뷰(문화 배경 제작)"
+    type: "pdf"
+    file: "./pdf/제작자 인터뷰(문화 배경 제작).pdf"
+    lang: "ko,en"
+
+  - name: "종합"
+    type: "pdf"
+    file: "./pdf/종합.pdf"
+    lang: "ko,en"
+
+  - name: "CG 연출·시퀀스"
+    type: "pdf"
+    file: "./pdf/CG 연출·시퀀스.pdf"
+    lang: "ko,en"
+
+  - name: "Feminism"
+    type: "pdf"
+    file: "./pdf/Feminism.pdf"
+    lang: "ko,en"
+
+  - name: "golden"
+    type: "pdf"
+    file: "./pdf/golden.pdf"
+    lang: "ko,en"
+
+  - name: "goods"
+    type: "pdf"
+    file: "./pdf/goods.pdf"
+    lang: "ko,en"
+
+  - name: "K-애니메이션에서 버추얼 아이돌"
+    type: "pdf"
+    file: "./pdf/K-애니메이션에서 버추얼 아이돌.pdf"
+    lang: "ko,en"
+
+  - name: "Sexy K-pop"
+    type: "pdf"
+    file: "./pdf/Sexy K-pop.pdf"
+    lang: "ko,en"       
+
+  - name: "케데헌 스토리 종합"
+    type: "pdf"
+    file: "./pdf/케데헌 스토리 종합.pdf"
+    lang: "ko,en"  
