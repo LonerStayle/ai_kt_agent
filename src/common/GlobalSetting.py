@@ -8,4 +8,4 @@ COLLECTION_NAME = "kpop_demon_hunters"
 BASE_DIR = os.path.dirname(os.path.dirname(__file__)) 
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-MODEL_NAME = "kt-midm-base-q4"
+MODEL_NAME = "midm-2.0-base-instruct"
