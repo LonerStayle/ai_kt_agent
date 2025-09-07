@@ -8,5 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
-
+src/data/pdf
 src/ai_model
+.DS_Store
