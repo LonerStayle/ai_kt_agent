@@ -7,3 +7,4 @@ class SelectImage(Enum):
     COEX = "코엑스"
     BUKCHON_HANOK = "북촌 한옥마을"
     CHEONGDAM_BRIDGE = "청담대교"
+    MyEONG_DONG = "명동"
