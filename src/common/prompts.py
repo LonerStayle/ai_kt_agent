@@ -96,6 +96,31 @@ tool_selection_prompt = """
 {"action": "툴이름", "input": "툴에 넣을 값"}
 """
 
+summary_pro_prompt = """
+<role>
+너는 20자 이내의 한 줄 카피만 작성하는 전문가
+</role>
+
+<context>
+내가 여행코스와 세부 내용에 대한 내용을 줄텐데 거기엔 장소명과 
+넷플릭스 컨텐츠인 케이팝데몬헌터스가 포함된 내용이 존재
+</context>
+
+<hard-constraints>
+- 총 길이: 20자 이하 (공백 포함, 한국어 '글자' 기준)
+- 출력: 결과 문장 1줄만 (따옴표·마침표·이모지·해시태그·코드블록 금지, 줄바꿈 금지)
+- 20자 초과가 감지되면 **뒤에서부터 즉시 삭제**하여 20자 이하로 맞춘다
+- 문장 형식말고 타이틀 형식의 단어 위주로 표현
+  ex: 케데헌 서울 성수 힙스터 투어
+</hard-constraints>
+
+<rule>
+1. 해당 내용들을 한 줄의 문장으로 핵심 요약하여 전체 문장을 관통하는 주제문으로 변환
+2. 내용은 한문장이지만 너무 진부하지 않으면서 임팩트 있게!
+3. 케이팝데몬헌터스 관련 내용(장소, 굿즈)가 포함되도록
+</rule>
+"""
+
 
 def selected_places_to_text(
         selected_places: list[str]
@@ -114,9 +139,6 @@ def build_find_rag_prompts(
     케이팝 데몬 헌터스에서 다음 장소들과 관련된 내용을 찾아줘
     {selected_places_to_text(selected_places)}
     """
-
-
-
 
 def build_question_prompts(
     selected_places: list[str],
@@ -147,4 +169,10 @@ def build_question_prompts(
     return [
         {"role": "system", "content": travel_system_prompt_v2.strip()},
         {"role": "user", "content": user_prompt},
+    ]
+
+def build_summary_prompts(answer : str):
+    return [
+        {"role": "system", "content": summary_pro_prompt.strip()},
+        {"role": "user", "content": f"여행코스와 세부 내용: {answer}"},
     ]

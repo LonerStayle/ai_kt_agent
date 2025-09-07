@@ -40,21 +40,42 @@ def send_prompt(selected_places: list[SelectImage]):
 
     messages = prompts.build_question_prompts(selected_places,candidates)
     print(messages)
+
+    full_answer = []
+
     for chunk in client.chat(
         model= gl.MODEL_NAME,  
         messages=messages,
         stream=True,
         options={
-        "num_predict": 128  
+        "num_predict": 1000
         }
     ):         
         if isinstance(chunk, tuple): chunk = chunk[0]
+
         if "message" in chunk and "content" in chunk["message"]:
+            full_answer.append(chunk["message"]["content"])
             print(chunk["message"]["content"], end="", flush=True)
 
-def main():
-    send_prompt([SelectImage.A, SelectImage.B ])
+    return ''.join(full_answer)    
 
+def make_summary_one_line(answer : str):
+
+    message = prompts.build_summary_prompts(answer)
+
+    return "".join(
+        chunk["message"]["content"] for chunk in client.chat(
+            model=gl.MODEL_NAME, 
+            messages=message, 
+            stream=True, 
+            options={"num_predict": 1000})
+    )    
+    
+def main():
+    answer = send_prompt([SelectImage.GYEONGBOKGUNG, SelectImage.COEX])
+    summary = make_summary_one_line(answer)
+
+    print(summary)
 
 if __name__ == "__main__":
     main()
