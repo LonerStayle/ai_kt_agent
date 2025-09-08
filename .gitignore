@@ -7,6 +7,7 @@ wheels/
 *.egg-info
 
 # Virtual environments
+.env
 .venv
 src/ai_model
 src/data/pdf
