@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import httpx
 
 
 hide_streamlit_style = """
@@ -67,16 +68,28 @@ for msg in st.session_state.messages:
 
 if prompt := st.chat_input("메세지를 입력하세요.."):
 
+       # 사용자 메시지 표시
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    response = f"""관광 전문 Agent: 네! 명동성당(Myeongdong Cathedral, 천주교 서울대교구 주교좌 명동대성당)은
-    한국을 대표하는 가톨릭 성당 중 하나로, 서울 중구 명동에 위치해 있습니다.
-    주소: 서울특별시 중구 명동길 74 (명동2가 50-1)
-    설립: 1898년(고딕 양식의 본 건물 완공), 한국 천주교 서울대교구 주교좌 성당
-    의미: 한국 가톨릭의 중심이자, 민주화 운동·사회적 갈등 시기 시민들이 모이던 상징적 공간
-      """
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    # 어시스턴트 응답 표시 (스트리밍)
     with st.chat_message("assistant"):
-        st.markdown(response)
+        message_placeholder = st.empty()
+        full_response = ""
+
+        # FastAPI 서버에 스트리밍 요청
+        with httpx.stream(
+            "POST",
+            "http://localhost:8000/chat",
+            params={"user_text": prompt},
+            timeout=None,
+        ) as r:
+            for chunk in r.iter_text():
+                if chunk:
+                    full_response += chunk
+                    message_placeholder.markdown(full_response + "▌")  # 커서 표시 효과
+
+        # 최종 응답 확정
+        message_placeholder.markdown(full_response)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
