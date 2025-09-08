@@ -79,3 +79,19 @@ class RedisMemory:
 
         msgs.extend(selected)
         return msgs
+    
+    def last_user_message(self) -> str:
+        """Redis에서 마지막 user 메시지를 가져옴 (없으면 None)"""
+        raw = self.r.lrange(self.msg_key, -1, -1)
+        if not raw:
+            return None
+        x = raw[0]
+        if isinstance(x, (bytes, bytearray)):
+            x = x.decode()
+        try:
+            m = _json.loads(x)
+            if m.get("role") == "user":
+                return m.get("content")
+        except Exception:
+            pass
+        return None

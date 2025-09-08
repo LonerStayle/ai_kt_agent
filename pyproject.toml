@@ -20,6 +20,7 @@ dependencies = [
     "safetensors>=0.6.2",
     "streamlit>=1.49.1",
     "streamlit-extras>=0.7.7",
+    "tavily-python>=0.7.11",
     "torch>=2.8.0",
     "transformers>=4.56.0",
     "uvicorn>=0.35.0",
