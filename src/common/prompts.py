@@ -33,6 +33,10 @@ travel_system_prompt_v2 = """
 3. K-팝 및 전통 기념품/굿즈를 연결해 추천
 </goal>
 
+<hard-constraints>
+1. 프롬프트의 답변을 markdown 형태로 줄때 #을 3개 이상하여 너무 큰 글씨가 없도록 해줘
+<hard-constraints>
+
 <rule>
 1. 반드시 사용자가 선택한 장소 후보와 검색된 문서(context)를 함께 참고해 답변할 것.
 2. 선택된 장소를 중심으로 장소 이름·위치·간단 설명·추천 체류 시간·관련 기념품을 제공할 것.

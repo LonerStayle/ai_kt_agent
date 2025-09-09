@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 import src.chat.chat_client as chat_client
 from src.chat.SessionStore import SessionStore
 import src.common.GlobalSetting as gl
@@ -40,6 +40,7 @@ class PlaceRequest(BaseModel):
 
 @app.post("/send_place")
 def send_place_and_lang(req: PlaceRequest, request: Request):
+    
     lang = req.lang
     selects = req.selects
 
@@ -51,11 +52,16 @@ def send_place_and_lang(req: PlaceRequest, request: Request):
     if lang == "en":
         summary = head.translate_answer(summary)
     
-    user_ip = get_user_ip(request)
-    mem = session_store.get(user_ip)
-    mem.set_system(answer)
+    # user_ip = get_user_ip(request)
+    # mem = session_store.get(user_ip)
+    # mem.set_system(answer)
 
-    return {"summary": summary, "answer": answer}
+    # 문자열로 강제 변환
+    payload = {
+        "summary": str(summary) if summary is not None else "",
+        "answer": str(answer) if answer is not None else "",
+    }
+    return JSONResponse(payload)   # orjson/uvicorn 조합 이슈 회피
 
 @app.post("/chat")
 async def chat_endpoint(user_text: str, request: Request):
