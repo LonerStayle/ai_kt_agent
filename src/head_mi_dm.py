@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
 load_dotenv()
 
 kt_base_name = "K-intelligence/Midm-2.0-Base-Instruct"
@@ -70,32 +71,7 @@ def make_summary_one_line(trans_link_answer: str):
             options={"num_predict": 1000})
     )        
     
-def main():
-    answer = send_prompt([SelectImage.GYEONGBOKGUNG, SelectImage.COEX])
-    
-    print('korean')
-    print(answer)
-    
-    # TODO 화면단에서 받아오는 언어값으로 치환
-    language = 'en'
-    
-    if language == 'en':
-        answer = translate_answer(answer)
-        
-    summary = make_summary_one_line(answer)
 
-    # TODO 이 부분은 믿음2.0으로 바꾸는 것 고려 / 영어로 했을 때 20자 넘어가는 것 수정
-    if language == 'en':
-        summary = translate_answer(summary)
-    
-    print('summary')
-    print(summary)
-    
-    print('answer')
-    print(answer)
-
-if __name__ == "__main__":
-    main()
 
 
 

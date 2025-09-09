@@ -1,5 +1,5 @@
 from enum import Enum
-class SelectImage(Enum):
+class SelectImage(str,Enum):
     GYEONGBOKGUNG = "경복궁"
     NAKSAN_WALL = "낙산공원 성곽길"
     NAMSAN_TOWER = "남산 타워"
