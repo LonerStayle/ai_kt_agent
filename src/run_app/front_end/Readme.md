@@ -1,1 +1,0 @@
- ```streamlit run src\run_app\front_end\home.py```

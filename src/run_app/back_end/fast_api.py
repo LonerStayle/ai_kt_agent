@@ -22,12 +22,6 @@ session_store = SessionStore(
     system_prompt=system_prompt, window_pairs=6, max_chars=8000
 )
 
-
-@app.get("/title")
-def read_root():
-    return {"title": "K 테크 에이전트 화이팅!!"}
-
-
 def get_user_ip(request: Request):
     client_ip = request.headers.get("x-forwarded-for")
     if client_ip:
@@ -36,6 +30,32 @@ def get_user_ip(request: Request):
         user_ip = request.client.host
     return user_ip
 
+@app.get("/title")
+def get_title():
+    return {"title": "서울 여행 루트 추천"}
+
+class PlaceRequest(BaseModel):
+    lang: str
+    selects: List[SelectImage]
+
+@app.post("/send_place")
+def send_place_and_lang(req: PlaceRequest, request: Request):
+    lang = req.lang
+    selects = req.selects
+
+    answer = head.send_prompt(selects)
+    if lang == "en":
+        answer = head.translate_answer(answer)
+
+    summary = head.make_summary_one_line(answer)
+    if lang == "en":
+        summary = head.translate_answer(summary)
+    
+    user_ip = get_user_ip(request)
+    mem = session_store.get(user_ip)
+    mem.set_system(answer)
+
+    return {"summary": summary, "answer": answer}
 
 @app.post("/chat")
 async def chat_endpoint(user_text: str, request: Request):
@@ -47,38 +67,3 @@ async def chat_endpoint(user_text: str, request: Request):
     return StreamingResponse(
         chat_client.stream_chat(mem, messages), media_type="text/plain"
     )
-
-
-@app.post("/init_session")
-async def init_session(system_message: str, request: Request):
-    user_ip = get_user_ip(request)
-    mem = session_store.get(user_ip)
-    mem.set_system(system_message)
-    return {"system_message": system_message}
-
-
-
-class PlaceRequest(BaseModel):
-    lang: str
-    selects: List[SelectImage]
-
-@app.post("/send_place")
-def send_place_and_lang(req: PlaceRequest):
-    lang = req.lang
-    selects = req.selects
-
-    answer = head.send_prompt(selects)
-    if lang == "en":
-        answer = head.translate_answer(answer)
-
-
-    summary = head.make_summary_one_line(answer)
-    if lang == "en":
-        summary = head.translate_answer(summary)
-
-    print("summary")
-    print(summary)
-
-    print("answer")
-    print(answer)
-    return ""

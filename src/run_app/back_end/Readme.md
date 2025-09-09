@@ -1,1 +1,0 @@
-```uvicorn src.run_app.back_end.fast_api:app```
