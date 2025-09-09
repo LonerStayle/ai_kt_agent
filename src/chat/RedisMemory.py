@@ -95,3 +95,7 @@ class RedisMemory:
         except Exception:
             pass
         return None
+    
+    def set_system(self, system_text: str):
+        self.r.set(self.sys_key, system_text)
+        self.system = system_text
