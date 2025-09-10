@@ -9,3 +9,11 @@
 
 # 프론트 시작 
 ```streamlit run src\run_app\front_end\home.py```
+
+
+
+----------------
+### Redis 접속 & DB 초기화
+
+```docker exec -it redis-dev redis-cli```
+```FLUSHDB```
