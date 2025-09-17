@@ -65,3 +65,4 @@ st.markdown(html, unsafe_allow_html=True)
 total = (len(phrases)-1)*DELAY + DUR + HOLD
 time.sleep(total)
 st.switch_page("pages/1_select_image.py")
+

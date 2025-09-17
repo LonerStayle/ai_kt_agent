@@ -52,9 +52,23 @@ def send_place_and_lang(req: PlaceRequest, request: Request):
     if lang == "en":
         summary = head.translate_answer(summary)
     
-    # user_ip = get_user_ip(request)
-    # mem = session_store.get(user_ip)
-    # mem.set_system(answer)
+    user_ip = get_user_ip(request)
+    mem = session_store.get(user_ip)
+    chat_instroduct = f"""
+    너는 외국인의 관광을 안내하는 1:1 관광 가이드야
+    교통, 역사, 지리, 즐길거리에 아주 현명한 에이전트로써
+    외국인에게 입체적인 관광 안내를 제공합니다.
+
+    아래는 이전 여행사로부터 받은 현재 외국인에게 추천한 
+    여행 코스입니다. 
+    아래 상황을 보고 맞는 가이드를 진행하세요
+    ------------------------------------------
+
+    {answer}
+
+    ------------------------------------------
+    """
+    mem.set_system(chat_instroduct)
 
     # 문자열로 강제 변환
     payload = {
