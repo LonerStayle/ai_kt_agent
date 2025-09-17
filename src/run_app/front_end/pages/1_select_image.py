@@ -113,7 +113,6 @@ div.stButton > button {
     font-size: 14px !important;
     font-weight: 600 !important;
     cursor: pointer;
-    margin-left: 140px;
 }
 div.stButton > button:hover {
     background-color: #0056b3 !important;
