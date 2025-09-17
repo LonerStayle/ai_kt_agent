@@ -1,0 +1,4 @@
+[server]
+maxMessageSize = 500
+staticDir = "static"
+`

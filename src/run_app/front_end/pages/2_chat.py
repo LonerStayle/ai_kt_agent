@@ -138,7 +138,6 @@ st.markdown("""
 
 BASE_PATH = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parents[0]))
 # --- 1단계 결과 표시 ---
-
 if "step1_result" in st.session_state:
     print(st.session_state.step1_result)
     st.sidebar.header("📌 1단계 결과")
@@ -148,10 +147,13 @@ if "step1_result" in st.session_state:
 
 
     for img_path in st.session_state.step1_result["images"]:
+        # Windows 경로(\) → 슬래시(/)로 변환 후 Path 객체로 만들기
         path = (BASE_PATH / Path(img_path.replace("\\", "/"))).resolve()
+
         if path.exists():
+            # 1단계 결과에서 사이드바에서 이미지 폭 맞춤으로 수정
             with open(path, "rb") as f:
-                st.sidebar.image(f.read(), width=232)
+                st.sidebar.image(f.read(), use_column_width=True)
 
 
 # --- 채팅 표시 ---
