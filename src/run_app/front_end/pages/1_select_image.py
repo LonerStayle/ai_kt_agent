@@ -26,7 +26,6 @@ class SelectImage(str, Enum):
 # 경로 -> Enum 매핑 유틸 함수
 # =============================
 def _file_to_enum_map() -> Dict[str, SelectImage]:
-    """파일명(stem) -> SelectImage 매핑 테이블"""
     return {
         "경복궁": SelectImage.GYEONGBOKGUNG,
         "낙산공원 성곽길": SelectImage.NAKSAN_WALL,
@@ -40,14 +39,12 @@ def _file_to_enum_map() -> Dict[str, SelectImage]:
 
 
 def path_to_enum(path: str) -> Optional[SelectImage]:
-    """단일 파일 경로 -> SelectImage (없으면 None)"""
     mapping = _file_to_enum_map()
     stem = Path(path).stem
     return mapping.get(stem)
 
 
 def paths_to_enums(paths: List[str]) -> Tuple[List[SelectImage], List[str]]:
-    """경로 리스트 -> (Enum 리스트, 실패 경로 리스트)"""
     enums: List[SelectImage] = []
     failed: List[str] = []
     for p in paths:
@@ -116,7 +113,7 @@ div.stButton > button {
     font-size: 14px !important;
     font-weight: 600 !important;
     cursor: pointer;
-    margin-left: 140px; /* TODO 화면 크게에 따라 width 조정 필요 */
+    margin-left: 140px;
 }
 div.stButton > button:hover {
     background-color: #0056b3 !important;
@@ -167,27 +164,61 @@ for r in range(rows):
 
 
 # -----------------------------
-# 선택된 이미지 보여주기
+# 선택된 이미지 + 광고 배너
 # -----------------------------
 st.markdown("---")
-st.markdown("<h3 style='color:black; margin-bottom:20px;'>선택한 여행지</h3>", unsafe_allow_html=True)
-st.markdown("---")
+col_left, col_right = st.columns([2, 3], gap="large")
 
-if st.session_state.selected:
-    thumbs_per_row = 6
-    selected_paths = sorted(st.session_state.selected)
-    rows = (len(selected_paths) + thumbs_per_row - 1) // thumbs_per_row
-    for r in range(rows):
-        row_cols = st.columns(thumbs_per_row, gap="small")
-        for c in range(thumbs_per_row):
-            k = r * thumbs_per_row + c
-            if k >= len(selected_paths):
-                continue
-            p = Path(selected_paths[k])
-            with row_cols[c]:
-                st.image(str(p), width=200, caption=p.stem) # TODO 화면 크게에 따라 width 조정 필요
-else:
-    st.caption("아직 선택된 장소가 없습니다. 위의 이미지를 클릭해보세요.")
+with col_left:
+    st.markdown("<h3 style='color:black; margin-bottom:20px;'>선택한 여행지</h3>", unsafe_allow_html=True)
+
+    if st.session_state.selected:
+        selected_paths = sorted(st.session_state.selected)
+
+        # ✅ 모든 이미지를 한 번에 HTML로 합치기
+        html_blocks = []
+        for p in selected_paths:
+            path_obj = Path(p)
+            img_b64 = image_to_base64(path_obj)
+            html_blocks.append(
+                f"""
+<div style="flex:0 0 auto; text-align:center;">
+    <img src="data:image/webp;base64,{img_b64}" 
+         style="width:160px; height:120px; object-fit:cover; border-radius:8px;">
+    <p style="margin-top:4px; font-size:14px; color:black;">{path_obj.stem}</p>
+</div>
+"""
+            )
+
+        # ✅ 컨테이너에 한 번에 삽입 (가로 배치)
+        st.markdown(
+            f"""
+<div style="display:flex; flex-wrap:wrap; gap:16px; padding:10px 0;">
+    {"".join(html_blocks)}
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+    else:
+        st.caption("아직 선택된 장소가 없습니다. 위의 이미지를 클릭해보세요.")
+
+
+with col_right:
+    ad_img_path = "src/data/banner/seoul_goods.png"
+    ad_link = "https://english.visitseoul.net/partners-en/seoul-goods"
+    if Path(ad_img_path).exists():
+        ad_b64 = image_to_base64(Path(ad_img_path))
+        st.markdown(
+            f"""
+            <a href="{ad_link}" target="_blank">
+                <img src="data:image/png;base64,{ad_b64}" 
+                    style="width:100%; height:auto; border-radius:12px; 
+                           box-shadow:0 4px 12px rgba(0,0,0,0.3); cursor:pointer;">
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # -----------------------------
@@ -197,7 +228,7 @@ btn_col = st.columns(1)[0]
 
 with btn_col:
     if st.button("선택 완료", type="primary"):
-        choose_images = sorted(st.session_state.selected)  # ✅ 문자열 그대로 사용
+        choose_images = sorted(st.session_state.selected)
         if choose_images:
 
             enums, failed = paths_to_enums(choose_images)
@@ -205,25 +236,13 @@ with btn_col:
                 st.warning("다음 항목은 Enum 매핑을 찾지 못했습니다:")
                 st.write(failed)
 
-            payload = {
-                "lang": "ko",
-                "selects": [e.value for e in enums]
-            }
+            payload = {"lang": "ko", "selects": [e.value for e in enums]}
 
             try:
-                url = "http://localhost:8000/send_place"
-                with st.spinner("서버가 결과를 생성 중입니다..."):
-                    res = requests.post(url, json=payload, timeout=(5, 600))
-                    res.raise_for_status()
-                    data = res.json()
-
-                st.session_state["step1_result"] = {
-                    "images": choose_images,
-                    "summary": data.get("summary"),
-                    "answer": data.get("answer"),
-                }
-
-                st.switch_page("pages/2_chat.py")
+                st.session_state["step1_payload"] = payload
+                st.session_state["step1_images"] = choose_images
+                
+                st.switch_page("pages/0_waiting_video.py")
 
             except Exception as e:
                 st.error(f"API 호출 실패: {e}")
