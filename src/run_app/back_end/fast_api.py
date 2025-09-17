@@ -84,6 +84,4 @@ async def chat_endpoint(user_text: str, request: Request):
     mem.add_user(user_text)
     messages = mem.build_messages()
 
-    return StreamingResponse(
-        chat_client.stream_chat(mem, messages), media_type="text/plain"
-    )
+    return StreamingResponse(chat_client.chat(mem, messages), media_type="text/plain")

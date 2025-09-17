@@ -5,22 +5,19 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain.agents import initialize_agent, AgentType
 from src.tools.tavily_client import tavily_client
 from dotenv import load_dotenv
+import os 
+from openai import OpenAI
 
 load_dotenv()
 
 llm_client = Client(host="http://127.0.0.1:11434")
 model_name = gl.MODEL_NAME
 llm = ChatOllama(model="llama3", base_url="http://127.0.0.1:11434")
-search_tool = TavilySearchResults(max_results=2)
 
-# Function-style Agent (빠른 툴 처리)
-agent = initialize_agent(
-    tools=[search_tool],
-    llm=llm,
-    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True,
-    handle_parsing_errors=True,
-)
+
+api_key = os.getenv("OPENAI_API_KEY")
+gpt = OpenAI(api_key=api_key)
+
 
 
 def run_tavily_and_get_urls(query: str, max_results: int = 3):
@@ -33,14 +30,9 @@ def run_tavily_and_get_urls(query: str, max_results: int = 3):
         return []
 
 
-def stream_chat(mem, messages):
-    """
-    - Ollama로 스트리밍 답변
-    - 필요하면 중간에 Tavily 검색 결과를 Observation처럼 붙여서 마무리
-    """
+def main_chat(mem, messages):
     user_text = messages[-1]["content"]
 
-    # 스트리밍 중간 결과 모으기
     chunks = []
     for chunk in llm_client.chat(
         model=model_name, messages=messages, stream=True, options={"num_predict": 1024}
@@ -49,13 +41,10 @@ def stream_chat(mem, messages):
             chunk = chunk[0]
         if "message" in chunk and "content" in chunk["message"]:
             piece = chunk["message"]["content"]
-            piece = (
-                piece.replace("<|system|>", "")
-                .replace("<|user|>", "")
-                .replace("<|assistant|>", "")
-            )
+
             chunks.append(piece)
-            yield piece  # 사용자에게 실시간 전송
+            yield piece 
+            
 
     assistant_text = "".join(chunks).strip()
 
@@ -74,11 +63,64 @@ def stream_chat(mem, messages):
             "news",
         ]
     ):
-        urls = run_tavily_and_get_urls(user_text, max_results=3)
+        urls = run_tavily_and_get_urls(user_text, max_results=1)
         if urls:
             obs_text = "\n\n🔎 참고할 수 있는 관련 링크:\n" + "\n".join(urls)
             assistant_text += obs_text
             yield obs_text  # URL도 스트리밍으로 이어 붙이기
 
-    # 메모리에 최종 답변 저장
+    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
     mem.add_assistant(assistant_text)
+
+
+def tavily_chat(query: str, max_results=1) -> str:
+    result = tavily_client.search(query, max_results=max_results)
+    obs_list = []
+    for r in result["results"]:
+        obs_list.append(f"- {r['title']}: {r['content']} ({r['url']})")
+    return "\n".join(obs_list)
+
+
+# GPT Router: 툴 호출 여부 판단 ---
+def routing_with_gpt(user_text: str) -> str:
+    """
+    GPT API를 사용해서 'chat' or 'search' 판단
+    """
+    system_prompt = """You are a router agent.
+Decide if the user question needs real-world search (e.g. restaurants, locations, news).
+Respond ONLY with one word: 'chat' or 'search'."""
+
+    completion = gpt.chat.completions.create(
+        model="gpt-4o-mini",  
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_text},
+        ],
+        max_tokens=2,
+    )
+    return completion.choices[0].message.content.strip().lower()
+
+
+def chat(mem, messages):
+    user_text = messages[-1]["content"]
+    route = routing_with_gpt(user_text)
+    print(f"[Router Decision] {route}")
+    
+    if route == "chat":
+        for token in main_chat(mem, messages):
+            yield token
+
+    elif route == "search":
+        obs_text = tavily_chat(user_text, max_results=2)
+        messages.append({
+            "role": "system",
+            "content": f"🔎 Tavily 검색 결과:\n{obs_text}\n\n위 내용을 반영해서 답변을 보강하세요."
+        })
+        for token in main_chat(mem, messages):
+            yield token
+
+    else:
+        # fallback: 그냥 chat
+        for token in main_chat(mem, messages):
+            yield token
+
