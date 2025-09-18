@@ -1,5 +1,6 @@
 import streamlit as st
 from pathlib import Path
+from PIL import Image
 
 st.set_page_config(page_title="테마 선택", layout="wide")
 
@@ -17,6 +18,8 @@ st.markdown(
     """
     <style>
     .theme-img {
+        width: 100% !important;
+        height: auto !important;
         border-radius: 12px;
         max-height: 300px;
         object-fit: cover;
@@ -69,7 +72,8 @@ for theme, info in themes.items():
 
     with col1:
         if Path(info["img"]).exists():
-            st.image(str(info["img"]), use_container_width=True, output_format="auto")
+            img = Image.open(info["img"])   # Pillow로 열기
+            st.image(img, caption=theme)    # Pillow 객체 넘기면 안전
         else:
             st.error(f"이미지 없음: {info['img']}")
 
