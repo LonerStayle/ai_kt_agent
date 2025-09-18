@@ -77,7 +77,7 @@ requires-dist = [
     { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "redis", specifier = ">=6.4.0" },
     { name = "safetensors", specifier = ">=0.6.2" },
-    { name = "streamlit", specifier = ">=1.49.1" },
+    { name = "streamlit", specifier = ">=1.31.0" },
     { name = "streamlit-extras", specifier = ">=0.7.7" },
     { name = "tavily-python", specifier = ">=0.7.11" },
     { name = "torch", specifier = ">=2.8.0" },
