@@ -14,7 +14,8 @@
 ```(윈도우) streamlit run src\run_app\front_end\home.py```
 ```streamlit run src/run_app/front_end/home.py```
 
-
+# chunk source indexing
+``` python -m src.pipe_lines.index ```
 
 ----------------
 ### Redis 접속 & DB 초기화
