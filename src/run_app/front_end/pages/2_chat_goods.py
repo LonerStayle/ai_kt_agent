@@ -189,23 +189,23 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
                     if not chunk:
                         continue
 
+                    # JSON 파싱 시도(goods images)
                     try:
-                        data = json.loads(chunk)  # JSON으로 파싱 시도
-                        print(data)
+                        data = json.loads(chunk)  
+
+                        if data["type"] == "images":
+                            # ✅ 이미지 여러 개 출력
+                            cols = st.columns(len(data["content"]))
+                            for col, img_path in zip(cols, data["content"]):
+                                with open(str(DATA_PATH / img_path), "rb") as f:
+                                    col.image(f.read(), width=200)
+                        
                     except:
-                        # 그냥 텍스트일 경우
+                        # 일반 텍스트 응답
                         full_response += chunk
                         message_placeholder.markdown(full_response + "▌")
                         continue
-                        
-                    print(data)
-                    if data["type"] == "images":
-                        cols = st.columns(len(data["content"]))
-                        for col, img_path in zip(cols, data["content"]):
-                            with open(str(DATA_PATH / img_path), "rb") as f:
-                                col.image(f.read(), width=200)
-                        
-    
+                    
             message_placeholder.markdown(full_response)
             
             st.session_state.messages.append(
