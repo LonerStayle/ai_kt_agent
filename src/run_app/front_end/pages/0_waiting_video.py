@@ -77,8 +77,8 @@ if "step1_payload" in st.session_state:
         }
 
         # ✅ 자동으로 다음 페이지 이동
-        time.sleep(1)
-        st.switch_page("pages/2_chat.py")
+        time.sleep(1)  # 영상 잠깐 보여주고 넘어가기 (선택)
+        st.switch_page("pages/2_chat_goods.py")
 
     except Exception as e:
         st.error(f"API 호출 실패: {e}")

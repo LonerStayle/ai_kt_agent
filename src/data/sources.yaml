@@ -80,9 +80,9 @@ sources:
     file: "./pdf/스토리.pdf"
     lang: "ko,en"
 
-  - name: "제작노트_"
+  - name: "제작노트"
     type: "pdf"
-    file: "./pdf/제작노트_.pdf"
+    file: "./pdf/제작노트.pdf"
     lang: "ko,en"
 
   - name: "제작자 인터뷰(문화 배경 제작)"
@@ -127,5 +127,35 @@ sources:
 
   - name: "케데헌 스토리 종합"
     type: "pdf"
-    file: "./pdf/케데헌 스토리 종합.pdf"
+    file: "./pdf/kdh_story.pdf"
     lang: "ko,en"  
+
+  - name: "seoul"
+    type: "pdf"
+    file: "./pdf/seoul.pdf"
+    lang: "ko,en"  
+  
+  - name: "케데헌 굿즈1"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈1.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈2"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈2.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈3"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈3.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈4"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈4.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈5"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈5.pdf"
+    lang: "ko,en"       

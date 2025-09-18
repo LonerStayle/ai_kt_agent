@@ -7,6 +7,8 @@ from src.tools.tavily_client import tavily_client
 from dotenv import load_dotenv
 import os 
 from openai import OpenAI
+import json
+
 
 load_dotenv()
 
@@ -68,6 +70,31 @@ def main_chat(mem, messages):
             obs_text = "\n\n🔎 참고할 수 있는 관련 링크:\n" + "\n".join(urls)
             assistant_text += obs_text
             yield obs_text  # URL도 스트리밍으로 이어 붙이기
+    
+    if any(
+        keyword in user_text
+        for keyword in [
+            "케데헌",
+            "케이팝데몬헌터스",
+            "케이팝 데몬 헌터스",
+            "굿즈",
+            "goods",
+            'merchandise'
+            "상품",
+            "products",
+            "items",
+            "기념품",
+            "souvenir"
+        ]
+    ):
+        goods_images = [
+            "goods/dufy.png",
+            "goods/hunt.png",
+            "goods/sin.png",
+            "goods/ts.png",
+        ]
+        
+        yield "\n" + json.dumps({"type": "images", "content": goods_images}) + "\n" # chunk 단위로 보내지 않고 한줄로 보내도록 처리
 
     assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
     mem.add_assistant(assistant_text)
