@@ -134,3 +134,28 @@ sources:
     type: "pdf"
     file: "./pdf/seoul.pdf"
     lang: "ko,en"  
+  
+  - name: "케데헌 굿즈1"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈1.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈2"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈2.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈3"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈3.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈4"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈4.pdf"
+    lang: "ko,en"  
+
+  - name: "케데헌 굿즈5"
+    type: "pdf"
+    file: "./pdf/케데헌 굿즈5.pdf"
+    lang: "ko,en"       

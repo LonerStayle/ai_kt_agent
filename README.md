@@ -9,6 +9,7 @@
 
 # 백엔드 시작 
 ```uvicorn src.run_app.back_end.fast_api:app```
+```uvicorn src.run_app.back_end.fast_api:app --reload```
 
 # 프론트 시작 
 ```(윈도우) streamlit run src\run_app\front_end\home.py```
