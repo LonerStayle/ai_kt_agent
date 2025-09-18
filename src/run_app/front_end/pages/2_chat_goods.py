@@ -193,12 +193,40 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
                     try:
                         data = json.loads(chunk)  
 
+                        # if data["type"] == "images":
+                        #     # ✅ 이미지 여러 개 출력
+                        #     cols = st.columns(len(data["content"]))
+                        #     for col, img_path in zip(cols, data["content"]):
+                        #         with open(str(DATA_PATH / img_path), "rb") as f:
+                        #             col.image(f.read(), width=200)
                         if data["type"] == "images":
-                            # ✅ 이미지 여러 개 출력
-                            cols = st.columns(len(data["content"]))
-                            for col, img_path in zip(cols, data["content"]):
+                            # ✅ CSS 스타일 먼저 선언
+                            st.markdown("""
+                            <style>
+                            .image-grid {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 12px;              /* 간격 고정 */
+                            }
+                            .image-grid img {
+                                width: 180px;           /* 카드 크기 고정 */
+                                height: auto;
+                                border-radius: 8px;
+                            }
+                            </style>
+                            """, unsafe_allow_html=True)
+                        
+                            # ✅ HTML로 이미지 직접 출력
+                            html = '<div class="image-grid">'
+                            for img_path in data["content"]:
                                 with open(str(DATA_PATH / img_path), "rb") as f:
-                                    col.image(f.read(), width=200)
+                                    import base64
+                                    img_base64 = base64.b64encode(f.read()).decode("utf-8")
+                                    html += f'<img src="data:image/png;base64,{img_base64}" />'
+                            html += '</div>'
+                        
+                            st.markdown(html, unsafe_allow_html=True)
+
                         
                     except:
                         # 일반 텍스트 응답
