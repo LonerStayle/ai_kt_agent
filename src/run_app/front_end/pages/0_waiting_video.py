@@ -12,7 +12,7 @@ st.set_page_config(page_title="영상 재생 중...", layout="wide")
 
 load_dotenv()
 
-video_dir = Path("C:/ai_kt_agent/src/data")
+video_dir = Path("C:\walker\code\\ai_kt_agent\src\data")
 
 st.markdown("<h3>AI 서버가 응답을 생성 중입니다... 잠시만 기다려 주세요!</h3>", unsafe_allow_html=True)
 

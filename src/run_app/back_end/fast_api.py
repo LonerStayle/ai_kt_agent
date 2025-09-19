@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form, File, UploadFile
 from fastapi.responses import StreamingResponse, JSONResponse
 import src.agent.chat_agent as chat_agent
 from src.memory.SessionStore import SessionStore
@@ -78,10 +78,25 @@ def send_place_and_lang(req: PlaceRequest, request: Request):
     return JSONResponse(payload)   # orjson/uvicorn 조합 이슈 회피
 
 @app.post("/chat")
-async def chat_endpoint(user_text: str, request: Request):
+async def chat_endpoint(
+    request: Request,
+    user_text: str = Form(...),               # 텍스트는 Form 필드
+    image: UploadFile | None = File(None),    # 이미지는 File 필드 (옵션)
+):
     user_ip = get_user_ip(request)
     mem = session_store.get(user_ip)
     mem.add_user(user_text)
     messages = mem.build_messages()
+
+    print(user_text)
+    print(image)
+    # 이미지가 있으면 바이트로 읽거나 파일로 저장
+    if image is not None:
+        raw_bytes = await image.read()
+        # 예: 저장
+        # with open(f"uploads/{image.filename}", "wb") as f:
+        #     f.write(raw_bytes)
+        # 예: 바로 LLM에 넘기기
+        # llm_response = call_llm(user_text, raw_bytes)
 
     return StreamingResponse(chat_agent.chat(mem, messages), media_type="text/plain")
