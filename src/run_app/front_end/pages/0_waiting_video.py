@@ -2,10 +2,17 @@
 import streamlit as st
 import requests
 import time
-from pathlib import Path
 import base64
+import random
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
 st.set_page_config(page_title="영상 재생 중...", layout="wide")
+
+load_dotenv()
+
+video_dir = Path("C:/ai_kt_agent/src/data")
 
 st.markdown("<h3>AI 서버가 응답을 생성 중입니다... 잠시만 기다려 주세요!</h3>", unsafe_allow_html=True)
 
@@ -40,22 +47,27 @@ video {
 </style>
 """, unsafe_allow_html=True)
 
-# ✅ 로컬 mp4 영상 자동재생 (소리 ON 시도)
-video_path = Path("src/data/2025_u4wuTP7McEY.mp4")  # 경로 맞춤
-if video_path.exists():
-    video_bytes = video_path.read_bytes()
+video_files = list(video_dir.glob("*.mp4"))
+if video_files:
+    chosen_video = random.choice(video_files)   # 무작위 선택
+    video_bytes = chosen_video.read_bytes()
     video_base64 = base64.b64encode(video_bytes).decode("utf-8")
 
     st.markdown(
         f"""
-        <video autoplay controls playsinline loop>
+        <video autoplay playsinline loop>
             <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
         </video>
+
+        <script>
+            const video = document.getElementById('bgVideo');
+            video.volume = 0.1;  // 🔊 음량을 10%로 설정
+        </script>
         """,
         unsafe_allow_html=True
     )
 else:
-    st.error(f"❌ 영상 파일을 찾을 수 없습니다: {video_path}")
+    st.error(f"❌ 영상 파일을 찾을 수 없습니다: {video_dir}")
 
 # ✅ 서버 응답 대기
 if "step1_payload" in st.session_state:
