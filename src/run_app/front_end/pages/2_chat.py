@@ -179,7 +179,7 @@ if "step1_result" in st.session_state:
         path = (BASE_PATH / Path(img_path.replace("\\", "/"))).resolve()
         if path.exists():
             with open(path, "rb") as f:
-                st.sidebar.image(f.read(), use_container_width=True)
+                st.sidebar.image(f.read(), width=232)
 
     # --- 상세 일정표 ---
     st.sidebar.markdown("---")
