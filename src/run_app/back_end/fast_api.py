@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse
-import src.chat.chat_client as chat_client
-from src.chat.SessionStore import SessionStore
+import src.agent.chat_agent as chat_agent
+from src.memory.SessionStore import SessionStore
 import src.common.GlobalSetting as gl
 from ollama import Client
-import src.head_mi_dm as head
+import src.agent.mi_dm_agent as head
 from src.common.SelectImage import SelectImage
 from typing import List
 from pydantic import BaseModel
@@ -84,4 +84,4 @@ async def chat_endpoint(user_text: str, request: Request):
     mem.add_user(user_text)
     messages = mem.build_messages()
 
-    return StreamingResponse(chat_client.chat(mem, messages), media_type="text/plain")
+    return StreamingResponse(chat_agent.chat(mem, messages), media_type="text/plain")
