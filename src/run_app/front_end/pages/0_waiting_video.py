@@ -2,6 +2,8 @@
 import streamlit as st
 import requests
 import time
+from pathlib import Path
+import base64
 
 st.set_page_config(page_title="영상 재생 중...", layout="wide")
 
@@ -25,39 +27,35 @@ h3 {
     margin-top: 20px;
 }
 
-/* ✅ iframe(영상) 중앙 정렬 */
-iframe {
+/* ✅ video 중앙 정렬 & 크기 조정 */
+video {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    border-radius: 10px;  /* 모서리 둥글게 */
-    box-shadow: 0 4px 16px rgba(0,0,0,0.25); /* 그림자 */
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    width: 95% !important;   /* 화면 거의 다 차게 */
+    height: auto !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ✅ 유튜브 영상 자동재생 (특정 초에서 시작)
-    
-# u4wuTP7McEY - 과천공연예술축제 / start=0
-# kXrUhsshEcM - 영천가을축제 / start=0
-# AMR-7YU3nXg - 군산시간여행축제 / start=0
-    
-# 원래 URL을 embed용으로 변환
-video_id = 'u4wuTP7McEY'
-start_sec = 0  # 원하는 시작 초 단위
-embed_url = f"https://www.youtube.com/embed/{video_id}?autoplay=1&start={start_sec}"
+# ✅ 로컬 mp4 영상 자동재생 (소리 ON 시도)
+video_path = Path("src/data/2025_u4wuTP7McEY.mp4")  # 경로 맞춤
+if video_path.exists():
+    video_bytes = video_path.read_bytes()
+    video_base64 = base64.b64encode(video_bytes).decode("utf-8")
 
-st.markdown(
-    f"""
-    <iframe width="900" height="500"
-            src="{embed_url}"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            allowfullscreen>
-    </iframe>
-    """,
-    unsafe_allow_html=True
-)
+    st.markdown(
+        f"""
+        <video autoplay controls playsinline loop>
+            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+        </video>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.error(f"❌ 영상 파일을 찾을 수 없습니다: {video_path}")
 
 # ✅ 서버 응답 대기
 if "step1_payload" in st.session_state:
@@ -80,7 +78,7 @@ if "step1_payload" in st.session_state:
 
         # ✅ 자동으로 다음 페이지 이동
         time.sleep(1)  # 영상 잠깐 보여주고 넘어가기 (선택)
-        st.switch_page("pages/2_chat.py")
+        st.switch_page("pages/2_chat_goods.py")
 
     except Exception as e:
         st.error(f"API 호출 실패: {e}")

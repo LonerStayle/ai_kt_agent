@@ -1,6 +1,6 @@
 import redis
 from typing import Dict
-from src.chat.RedisMemory import RedisMemory
+from src.memory.RedisMemory import RedisMemory
 
 class SessionStore:
     """

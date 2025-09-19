@@ -64,4 +64,6 @@ def run_inddexing(batch_size=32):
     total = client.count(collection_name=gl.COLLECTION_NAME).count
     logger.info(f"Indexing complete. Total vectors: {total}")
 
-run_inddexing()
+if __name__ == "__main__":
+    run_inddexing()
+

@@ -1,6 +1,7 @@
 import streamlit as st
 import requests, os ,httpx
 from pathlib import Path
+from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -137,22 +138,77 @@ st.markdown("""
 
 
 BASE_PATH = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parents[0]))
+
+# OpenAI 클라이언트 생성
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 # --- 1단계 결과 표시 ---
-
 if "step1_result" in st.session_state:
-    print(st.session_state.step1_result)
+    full_answer = st.session_state.step1_result["answer"]
+
     st.sidebar.header("📌 1단계 결과")
-    st.sidebar.markdown(
-        f"**[추천 루트 요약]**\n\n{st.session_state.step1_result['summary']}"
-    )
 
+    # ✅ 여기서 summary_text 먼저 정의
+    summary_text = st.session_state.step1_result["summary"]
 
+    # 프롬프트 작성
+    prompt = f"""
+    너는 최고의 여행 기획자이자 카피라이터야.
+    아래 여행 경로 요약을 읽고, 
+    무조건 3문장 이내으로 자연스럽게 요약해줘.
+    띄어쓰기에 주의하고 외국인들이 읽으면서 여행에 대한 기대를 할 수 있도록 해줘
+    특히 1) 여행 테마, 2) 주요 방문지, 3) 기대 효과를 포함해.
+    
+    여행 경로: {summary_text}
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # 속도 빠른 모델
+            messages=[{"role": "system", "content": prompt}]
+        )
+        ai_summary = response.choices[0].message.content.strip()
+    except Exception as e:
+        ai_summary = f"요약 생성 실패: {e}"
+
+    # 사이드바에 표시
+    st.sidebar.markdown(ai_summary)
+
+    # --- 이미지 출력 ---
     for img_path in st.session_state.step1_result["images"]:
         path = (BASE_PATH / Path(img_path.replace("\\", "/"))).resolve()
         if path.exists():
             with open(path, "rb") as f:
                 st.sidebar.image(f.read(), width=232)
 
+    # --- 상세 일정표 ---
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**상세 일정표**")
+
+    blocks = full_answer.split("## ")
+    for block in blocks:
+        if not block.strip():
+            continue
+        lines = block.strip().splitlines()
+
+        # 🔹 제목 줄
+        raw_title = lines[0].strip() if lines else "알 수 없음"
+        clean_title = raw_title.lstrip("0123456789. #")
+        st.sidebar.markdown(f"**{clean_title}**")
+
+        # 체류시간
+        stay = next((l for l in lines if "체류" in l), None)
+        if stay:
+            st.sidebar.markdown(f"- 체류시간: {stay.replace('체류:', '').strip()}")
+
+        # 기념품 리스트
+        if any("기념품" in l for l in lines):
+            st.sidebar.markdown("- 기념품:")
+            for l in lines:
+                if l.strip().startswith("- "):
+                    st.sidebar.markdown(f"  • {l[2:].strip()}")
+
+    # --- 사이드바 chat 요약 수정 끝 ---
 
 # --- 채팅 표시 ---
 if "messages" not in st.session_state:
