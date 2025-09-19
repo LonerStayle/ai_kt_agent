@@ -23,6 +23,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+video_dir = Path(os.getenv("PROJECT_ROOT") + "/src/data")
+
 st.markdown("<h3>AI 서버가 응답을 생성 중입니다... 잠시만 기다려 주세요!</h3>", unsafe_allow_html=True)
 
 # -----------------------------
