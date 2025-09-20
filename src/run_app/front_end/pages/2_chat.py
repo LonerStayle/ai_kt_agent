@@ -67,35 +67,6 @@ if "step1_result" in st.session_state:
             with open(path, "rb") as f:
                 st.sidebar.image(f.read(), width=232)
 
-    # --- 상세 일정표 ---
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("**상세 일정표**")
-
-    blocks = full_answer.split("## ")
-    for block in blocks:
-        if not block.strip():
-            continue
-        lines = block.strip().splitlines()
-
-        # 🔹 제목 줄
-        raw_title = lines[0].strip() if lines else "알 수 없음"
-        clean_title = raw_title.lstrip("0123456789. #")
-        st.sidebar.markdown(f"**{clean_title}**")
-
-        # 체류시간
-        stay = next((l for l in lines if "체류" in l), None)
-        if stay:
-            st.sidebar.markdown(f"- 체류시간: {stay.replace('체류:', '').strip()}")
-
-        # 기념품 리스트
-        if any("기념품" in l for l in lines):
-            st.sidebar.markdown("- 기념품:")
-            for l in lines:
-                if l.strip().startswith("- "):
-                    st.sidebar.markdown(f"  • {l[2:].strip()}")
-
-    # --- 사이드바 chat 요약 수정 끝 ---
-
 # --- 채팅 표시 ---
 if "messages" not in st.session_state:
     st.session_state.messages = [

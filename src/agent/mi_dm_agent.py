@@ -34,19 +34,15 @@ def get_move_times(selected_places: list[SelectImage]):
         temp = """
         [역할]
         너는 서울 교통 안내 도우미야.
-        {start}에서 {end}까지 도보거리, 대중 교통 시간을 알려줘
+        {start}에서 {end}까지 대중 교통 시간을 알려줘
 
         [필수 규칙]
         반드시 OUTPUT 규칙에 따른 응답을 할 것
-        택시, 버스, 지하철, 도보 중 이용 불가하거나 너무 오래걸리면
-        (도보는 30분 이하만) OUTPUT에서 제외할 것 
         
         [OUTPUT 규칙]
-        {{택시:40분}}
-        {{버스:1시간 30분}}
-        {{지하철:1시간}}
-        {{도보:5시간 20분}}
-
+        택시는 40분,
+        버스는 1시간 30분,
+        지하철 1시간,
         """
         query = temp.format(start = start, end = end)
         response = llm.chat.completions.create(
@@ -76,17 +72,17 @@ def get_remaind_times(selected_places: list[SelectImage]):
         반드시 OUTPUT 규칙에 따른 응답을 할 것
         
         [OUTPUT 규칙]
-        {{경복궁:1시간 20분}}
+        {place}의 체류시간은 1시간 20분
         """
         query = temp.format(place = place)
         response = llm.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": query},
-            {"role": "user", "content": "여행지의 체류 시간을 알려줘"}
+            {"role": "user", "content": "{place}의 여행에서 놀만한 체류 시간을 알려줘"}
         ])
         result_text = response.choices[0].message.content
-        result_dict[place] = result_text
+        result_dict[place+"의 체류 시간"] = result_text
 
     return result_dict
 
@@ -95,11 +91,10 @@ def send_prompt(selected_places: list[SelectImage]):
 
     query_by_rag = prompts.build_find_rag_prompts(selected_places)
     candidates = hybrid_search(query_by_rag, top_k=5)
-    
     move_times = get_move_times(selected_places)
     remaind_times = get_remaind_times(selected_places)
-    merged = move_times | remaind_times
-    messages = prompts.build_question_prompts(selected_places, candidates, merged)
+    
+    messages = prompts.build_question_prompts(selected_places, candidates, move_times, remaind_times)
     print(messages)
 
     full_answer = []

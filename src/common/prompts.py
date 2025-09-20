@@ -262,18 +262,24 @@ travel_system_prompt_v4 = """
 16. 역사적 사건, 감옥/교도소, 정부기관, 군사시설 등 관광 목적이 아닌 장소는 절대 추천하지 않는다.
 17. 장소 후보 중 잘못된 장소(비여행지)가 포함되어 있으면 무시하고, 그 사실을 [주의사항]에만 간단히 언급한다.
 
+
 <density-rule>
 1. 장소가 1~3개일 경우 → 각 장소 설명과 기념품, 이동 힌트, 역사/문화적 맥락, 소소한 팁을 **풍성하게 자세히** 제공하라.
 2. 장소가 4~6개일 경우 → 설명은 간결하되(2~3문장), 기념품과 이동 힌트는 유지하라.
 3. 장소가 7~10개일 경우 → 각 장소는 핵심 키워드 + 1문장 설명 + 대표 기념품 1~2개만 간단히 제공하라.
 4. 항상 전체 글 분량은 **시각적으로 균형** 있어 보이도록 조절하라.
 5. 전체 이동 경로의 지역 순서와 상세 일정의 순서를 철저하게 지켜라.
-6. 각 장소당 이동 수단은 최대한 이동시간이 짦은 것만 얘기할 것 
-7. 체류 시간 및 이동 경로는 아래 내용을 참고해서 진행 한다.
+6. 이동 수단은 최대한 이동 시간이 짦은 것만 얘기할 것 
+7. 상세 일정의 각 장소마다 다음 이동을 표시한다. 
+8. 상세 일정의 마지막 장소의 {{다음 이동}} 정보는 뜨지 않는다.
+9. [규칙] <> 안의 옵션 중 1개 또는 2개를 선택해서 쉼표로 구분하여 출력할 것.
+10. 체류 시간은 아래 내용을 참고해서 진행한다.
 ----
-
+{remaind_times}
+----
+11. 이동 경로는 아래 내용을 참고해서 진행 한다.
+----
 {move_times}
-
 ----
 </density-rule>
 </rule>
@@ -282,7 +288,7 @@ travel_system_prompt_v4 = """
 #### 전체 이동 경로
 - 경로: {{출발지역}} → {{경유지역1}} → {{경유지역2}} → {{도착지역}}  
 - 여행 시간: {{반나절|하루|2일|3일}}  
-- 이동 수단: {{도보+지하철|도보|택시}}  
+- 이동 수단: <지하철,택시,버스>
 - 총 소요시간: {{총 소요시간}}
 
 ---
@@ -366,16 +372,22 @@ summary_pro_prompt = """
 </rule>
 """
 summary_pro_prompt_v2 = """
-
+    [역할]
     너는 최고의 여행 기획자이자 카피라이터야.
     아래 여행 경로 요약을 읽고, 
-    무조건 3문장 이내으로 자연스럽게 요약해줘.
-    띄어쓰기에 주의하고 외국인들이 읽으면서 여행에 대한 기대를 할 수 있도록 해줘
-    
-    특히 1) 여행 테마, 2) 주요 방문지, 3) 기대 효과를 포함해.
+    무조건 60글자 이내으로 자연스럽게 요약해줘.
+    띄어쓰기에 주의하고 외국인들이 읽으면서
+    여행에 대한 기대를 할 수 있도록 해줘
 
-    응답은 한국어로 해 
+    [조건]
+    1) 여행 테마
+    2) 주요 방문지
+    3) 기대 효과를 포함해.
+    4) 반드시 답변은 한국어로 해.
+
+    [요청]
     여행 경로: {answer}
+    
 """
 
 translate_prompt = """
@@ -406,9 +418,9 @@ def build_find_rag_prompts(selected_places: list[str]):
 
 
 def build_question_prompts(
-    selected_places: list[str], context_docs: list[dict], move_times: list[dict]
+    selected_places: list[str], context_docs: list[dict], move_times: list[dict], remaind_times: list[dict]
 ):
-    system_prompt = travel_system_prompt_v4.format(move_times = move_times).strip()
+    system_prompt = travel_system_prompt_v4.format(move_times = move_times, remaind_times = remaind_times).strip()
 
     # 장소 후보 정하지 않으면 리턴
     if not selected_places:

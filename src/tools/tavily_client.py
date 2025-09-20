@@ -5,6 +5,7 @@ tavily_client = TavilyClient(api_key="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"
 def tavily_chat(query: str, max_results=1) -> str:
     result = tavily_client.search(query, max_results=max_results)
     obs_list = []
+    print(len(query))
     for r in result["results"]:
         obs_list.append(f"- {r['title']}: {r['content']} ({r['url']})")
     return "\n".join(obs_list)

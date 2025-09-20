@@ -19,10 +19,38 @@ api_key = os.getenv("OPENAI_API_KEY")
 gpt = OpenAI(api_key=api_key)
 
 
+def eng_chat(mem,user_text):
+    temp_list = [
+        {"role":"system",
+         "content":"""
+          [Required]  
+          This time, you must answer in English only.  
+          Do not include any Korean.
+          """
+         },
+         {
+             "role":"user",
+             "content":user_text
+         }
+    ]
+    chunks = []
+    for chunk in llm_client.chat(
+        model=model_name, messages=temp_list, stream=True, options={"num_predict": 1024}
+    ):
+        if isinstance(chunk, tuple):
+            chunk = chunk[0]
+        if "message" in chunk and "content" in chunk["message"]:
+            piece = chunk["message"]["content"]
+
+            chunks.append(piece)
+            yield piece 
+            
+    assistant_text = "".join(chunks).strip()
+    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
+    mem.add_assistant(assistant_text)
 
 def main_chat(mem, messages):
     user_text = messages[-1]["content"]
-
     chunks = []
     for chunk in llm_client.chat(
         model=model_name, messages=messages, stream=True, options={"num_predict": 1024}
@@ -107,8 +135,19 @@ Respond ONLY with one word: 'chat' or 'search'."""
     return completion.choices[0].message.content.strip().lower()
 
 
+import re
+
+def is_english_num_space(s: str) -> bool:
+    return bool(re.fullmatch(r"[ -~]+", s))
+
 def chat(mem, messages):
     user_text = messages[-1]["content"]
+    if is_english_num_space(user_text):
+        print("[Router Decision] ENG")
+        for token in eng_chat(mem,user_text):
+            yield token
+        return 
+    
     route = routing_with_gpt(user_text)
     print(f"[Router Decision] {route}")
     
@@ -117,10 +156,10 @@ def chat(mem, messages):
             yield token
 
     elif route == "search":
-        obs_text = tavily_chat(user_text, max_results=2)
+        obs_text = tavily_chat(user_text, max_results=1)
         messages.append({
             "role": "system",
-            "content": f"🔎 Tavily 검색 결과:\n{obs_text}\n\n위 내용을 반영해서 답변을 보강하세요."
+            "content": f"🔎 Tavily 검색 결과:\n{obs_text}\n\n위 내용을 반영해서 답변을 보강하기"
         })
         for token in main_chat(mem, messages):
             yield token
