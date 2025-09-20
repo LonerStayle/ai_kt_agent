@@ -2,6 +2,7 @@ import streamlit as st
 from pathlib import Path
 from PIL import Image
 
+
 st.set_page_config(page_title="테마 선택", layout="wide")
 
 # ✅ 사이드바 감추기
@@ -12,6 +13,16 @@ hide_sidebar = """
     </style>
 """
 st.markdown(hide_sidebar, unsafe_allow_html=True)
+
+
+
+st.markdown("""
+    <style>
+    /* 상단 상태바(Deploy, Running 등) 숨기기 */
+    header[data-testid="stHeader"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
 
 # ✅ CSS 스타일
 st.markdown(

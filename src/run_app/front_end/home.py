@@ -16,6 +16,15 @@ def get_base64_of_image(img_path: Path) -> str:
     return base64.b64encode(data).decode()
 
 bg_img_base64 = get_base64_of_image(BG_PATH)
+import streamlit as st
+
+st.markdown("""
+    <style>
+    /* 상단 상태바(Deploy, Running 등) 숨기기 */
+    header[data-testid="stHeader"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
 
 # ====== 스타일 적용 ======
 st.markdown(f"""

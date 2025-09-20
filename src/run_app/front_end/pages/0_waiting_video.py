@@ -13,6 +13,15 @@ load_dotenv()
 st.set_page_config(page_title="영상 재생 중...", layout="wide")
 
 video_dir = Path(os.getenv("PROJECT_ROOT") + "/src/data")
+import streamlit as st
+
+st.markdown("""
+    <style>
+    /* 상단 상태바(Deploy, Running 등) 숨기기 */
+    header[data-testid="stHeader"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
 
 st.markdown("<h3>AI 서버가 응답을 생성 중입니다... 잠시만 기다려 주세요!</h3>", unsafe_allow_html=True)
 
