@@ -27,10 +27,45 @@ hide_streamlit_style = """
         color: white;
     }
     </style>
-
-
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+image_add = """
+<style>
+#MainMenu, footer, header {visibility:hidden;}
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarNav"]{display:none!important;}
+/* 채팅 페이드 제거 */
+div[data-testid="stChatMessage"],
+div[data-testid="stChatMessageContent"]{
+  opacity:1!important;transition:none!important;animation:none!important;
+}
+/* === 업로더를 아이콘 버튼처럼 === */
+div[data-testid="stFileUploader"]{
+  width:40px!important; height:40px!important;
+  position:relative; overflow:hidden!important;
+  border-radius:8px; background:#444;
+  display:flex; align-items:center; justify-content:center;
+}
+div[data-testid="stFileUploader"]:hover{ background:#666; }
+div[data-testid="stFileUploader"] section{ position:absolute; inset:0; opacity:0; }
+div[data-testid="stFileUploader"]::before{
+  content:"📷"; position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:#fff; pointer-events:none;
+}
+div[data-testid="stFileUploader"] input[type=file]{
+  position:absolute; inset:0; opacity:0; cursor:pointer;
+}
+div[data-testid="stFileUploader"] span,
+div[data-testid="stFileUploader"] small,
+div[data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
+div[data-testid="stFileUploader"] .uploadedFile { display:none !important; }
+.preview-title{ color:#bbb; font-size:13px; margin:0 0 6px 2px; }
+</style>
+"""
+#st.markdown(image_add, unsafe_allow_html=True)
 
 st.markdown("""
     <style>
@@ -50,9 +85,6 @@ st.markdown("""
 
 BASE_PATH = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parents[0]))
 DATA_PATH = BASE_PATH / "src" / "data"
-
-# OpenAI 클라이언트 생성
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- 1단계 결과 표시 ---
 if "step1_result" in st.session_state:
@@ -96,6 +128,27 @@ if "step1_result" in st.session_state:
 
     # --- 사이드바 chat 요약 수정 끝 ---
 
+# --- 이미지 관련 처리 ---
+# ===== 이미지 미리보기 =====            
+#preview_slot = st.empty()
+#if "uploaded_image" in st.session_state:
+#    with preview_slot.container():
+#        st.markdown("**첨부된 이미지 미리보기**")
+#        st.image(st.session_state["uploaded_image"])
+#        if st.button("✖️ 제거", key="remove_preview"):
+#            del st.session_state["uploaded_image"]
+#            preview_slot.empty()
+#
+## ===== 업로드 버튼 (입력창 바로 아래로 이동) =====            
+#uploaded_file = st.file_uploader(
+#    "이미지 업로드", type=["png","jpg","jpeg"],
+#    label_visibility="collapsed", key="chat_uploader_bottom"
+#)
+#if uploaded_file:
+#    st.session_state["uploaded_image"] = uploaded_file
+#
+#    # --- 이미지 관련 처리 끝
+
 # --- 채팅 표시 ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -118,11 +171,14 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
         with st.spinner("생각 중... 🤔"):
             message_placeholder = st.empty()
             full_response = ""
-    
+
+            files = None
+            uf = st.session_state.get("uploaded_image", None)
             with httpx.stream(
                 "POST",
                 "http://localhost:8000/chat",
-                params={"user_text": prompt},
+                data={"user_text": prompt},
+                files=files,
                 timeout=None,
             ) as r:
                 for chunk in r.iter_text():

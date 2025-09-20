@@ -115,7 +115,6 @@ def chat(mem, messages, image):
         print('exist image')
         # 이미지가 있는 경우 사용자 채팅 자체를 '{image_kind}가 뭐야로 바꿔서 믿음에 질의'
         image_name = infer_image_name(messages, image)
-        
         messages = f'{image_name}에 대한 정보 알려줘'
         
     user_text = messages[-1]["content"]
