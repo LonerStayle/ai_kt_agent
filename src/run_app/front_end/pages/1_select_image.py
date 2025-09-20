@@ -240,8 +240,7 @@ with btn_col:
             try:
                 st.session_state["step1_payload"] = payload
                 st.session_state["step1_images"] = choose_images
-                
-                st.switch_page("pages/0_waiting_video.py")
+                st.switch_page(str(Path(__file__).parent / "0_waiting_video.py"))        
 
             except Exception as e:
                 st.error(f"API 호출 실패: {e}")

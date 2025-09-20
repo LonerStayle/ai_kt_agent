@@ -87,6 +87,6 @@ for theme, info in themes.items():
         # ✅ 버튼 → 설명 밑에, 가운데 정렬 + 페이지 이동
         if st.button(f"{theme} 선택하기", key=theme):
             st.session_state["selected_theme"] = theme
-            st.switch_page("pages/1_select_image.py")
+            st.switch_page(str(Path(__file__).parent / "1_select_image.py"))
 
     st.markdown("---")

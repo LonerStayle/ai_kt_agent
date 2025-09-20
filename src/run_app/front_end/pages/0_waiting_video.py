@@ -7,12 +7,14 @@ import random
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+load_dotenv()
+
 
 st.set_page_config(page_title="영상 재생 중...", layout="wide")
 
-load_dotenv()
 
-video_dir = Path("C:\walker\code\\ai_kt_agent\src\data")
+load_dotenv()
+video_dir = Path(os.getenv("PROJECT_ROOT") + "/src/data")
 
 st.markdown("<h3>AI 서버가 응답을 생성 중입니다... 잠시만 기다려 주세요!</h3>", unsafe_allow_html=True)
 
@@ -90,7 +92,8 @@ if "step1_payload" in st.session_state:
 
         # ✅ 자동으로 다음 페이지 이동
         time.sleep(1)  # 영상 잠깐 보여주고 넘어가기 (선택)
-        st.switch_page("pages/2_chat_goods.py")
+        from pathlib import Path
+        st.switch_page(str(Path(__file__).parent / "2_chat_goods.py"))
 
     except Exception as e:
         st.error(f"API 호출 실패: {e}")

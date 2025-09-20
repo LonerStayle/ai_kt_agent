@@ -1,7 +1,6 @@
 from tavily import TavilyClient
 
 tavily_client = TavilyClient(api_key="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")
-# response = tavily_client.search("김치 좀 추천해줘")
 
 def tavily_chat(query: str, max_results=1) -> str:
     safe_query = query[:399] # query가 400자 넘으면 오류나는 문제 예방

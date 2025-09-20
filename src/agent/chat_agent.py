@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os 
 from openai import OpenAI
 import json
+import base64
 
 
 load_dotenv()
@@ -83,6 +84,7 @@ def main_chat(mem, messages):
         ]
         
         yield "\n" + json.dumps({"type": "images", "content": goods_images}) + "\n" # chunk 단위로 보내지 않고 한줄로 보내도록 처리
+        
     assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
     mem.add_assistant(assistant_text)
 
@@ -107,7 +109,15 @@ Respond ONLY with one word: 'chat' or 'search'."""
     return completion.choices[0].message.content.strip().lower()
 
 
-def chat(mem, messages):
+def chat(mem, messages, image):
+    
+    if image:
+        print('exist image')
+        # 이미지가 있는 경우 사용자 채팅 자체를 '{image_kind}가 뭐야로 바꿔서 믿음에 질의'
+        image_name = infer_image_name(messages, image)
+        
+        messages = f'{image_name}에 대한 정보 알려줘'
+        
     user_text = messages[-1]["content"]
     route = routing_with_gpt(user_text)
     print(f"[Router Decision] {route}")
@@ -130,3 +140,33 @@ def chat(mem, messages):
         for token in main_chat(mem, messages):
             yield token
 
+def infer_image_name(user_text, image):
+    
+    messages = [
+        {"role": "system", "content": "너는 한국적 이미지를 보면 장소/물건 이름을 정확하게 판단 할 수 있는 이미지 전문가야"},
+        {"role": "user", "content": "응답은 간단하게 한 단어로 해줘 예를 들자면 다음과 같아 '요쿠르트 판매차', '경복궁, '남산'"}
+    ]
+
+    # 텍스트 추가
+    messages[1]["content"].append({
+        "type": "text",
+        "text": user_text
+    })
+
+    # 이미지 추가
+    if image is not None:
+        base64_image = base64.b64encode(image.read()).decode("utf-8")
+        
+        messages[1]["content"].append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+        })
+
+    # LLM 호출
+    response = gpt.chat.completions.create(
+        model="gpt-5",
+        messages=messages,
+        temperature=0.0,
+    )
+
+    return response.choices[0].message["content"]
