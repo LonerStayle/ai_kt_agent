@@ -71,14 +71,7 @@ def main_chat(mem, messages):
         keyword in user_text
         for keyword in [
             "검색",
-            "맛집",
-            "위치",
-            "어디",
-            "샵",
-            "shop",
-            "store",
-            "restaurant",
-            "news",
+            "맛집"
         ]
     ):
         urls = run_tavily_and_get_urls(user_text, max_results=1)

@@ -59,7 +59,7 @@ if "step1_result" in st.session_state:
     full_answer = st.session_state.step1_result["answer"]
     print(st.session_state.step1_result)
     st.sidebar.header("📌 K 한류 기반 여행")
-    st.sidebar.markdown(st.session_state.step1_result['summary'])
+    st.sidebar.markdown(full_answer)
 
     for img_path in st.session_state.step1_result["images"]:
         path = (BASE_PATH / Path(img_path.replace("\\", "/"))).resolve()
@@ -146,7 +146,3 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
                         continue
                     
             message_placeholder.markdown(full_response)
-            
-            st.session_state.messages.append(
-                {"role": "assistant", "content": full_response}
-            )

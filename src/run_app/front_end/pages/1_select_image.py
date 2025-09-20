@@ -155,11 +155,59 @@ for r in range(rows):
                 unsafe_allow_html=True,
             )
 
-            if st.button("해제하기" if is_selected else "선택하기", key=f"btn_{i}"):
+            btn_label = "해제하기" if is_selected else "선택하기"
+            btn_key = f"btn_{i}"
+
+            if st.button(btn_label, key=btn_key):
                 if is_selected:
                     st.session_state.selected.remove(str(path))
+                    st.session_state.toast_msg = f"'{path.stem}' 선택이 해제되었습니다."
                 else:
                     st.session_state.selected.add(str(path))
+                    st.session_state.toast_msg = f"'{path.stem}' 여행지를 선택했습니다."
+
+                st.experimental_rerun()
+            # rerun 후에도 토스트 표시
+        if "toast_msg" in st.session_state:
+            st.toast(st.session_state.toast_msg)
+            del st.session_state.toast_msg
+
+    # ✅ 버튼 색상 커스터마이징 (id 기반으로만 지정)
+            if is_selected:
+    # 해제하기 상태 → 회색
+                st.markdown(
+                     f"""
+                     <style>
+                    div.stButton > button[kind="secondary"][aria-label="{btn_label}"] {{
+                        background-color: #6c757d !important;  /* 회색 */
+                        color: white !important;
+                        border: none !important;
+                    }}
+                    div.stButton > button[kind="secondary"][aria-label="{btn_label}"]:hover {{
+                        background-color: #5a6268 !important;  /* hover 시 진한 회색 */
+                    }}
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+    # 선택하기 상태 → 파란색
+             st.markdown(
+              f"""
+              <style>
+                div.stButton > button[kind="secondary"][aria-label="{btn_label}"] {{
+                    background-color: #007bff !important;  /* 파랑 */
+                    color: white !important;
+                    border: none !important;
+                }}
+                div.stButton > button[kind="secondary"][aria-label="{btn_label}"]:hover {{
+                    background-color: #0056b3 !important;  /* hover 시 진한 파랑 */
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
 
 
 # -----------------------------
@@ -200,7 +248,10 @@ with col_left:
         )
 
     else:
-        st.caption("아직 선택된 장소가 없습니다. 위의 이미지를 클릭해보세요.")
+        st.markdown(
+            "<p style='color:#333333; font-size:15px;'>아직 선택된 장소가 없습니다. 위의 이미지를 클릭해보세요.</p>",
+            unsafe_allow_html=True
+        )
 
 
 with col_right:

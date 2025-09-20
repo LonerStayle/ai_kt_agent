@@ -4,8 +4,8 @@ from pathlib import Path
 import base64
 
 # ====== 설정 ======
-DUR   = 1.8
-DELAY = 0.9
+DUR   = 3.0
+DELAY = 1.2
 HOLD  = 0.8
 
 # ====== 배경 이미지 base64로 변환 ======
@@ -59,9 +59,9 @@ st.markdown(f"""
 
 # ====== 문구 ======
 phrases = [
-    "K-컬처에서 K-라이프까지, 한 번에",
+    "K-컬처에서 K-여행까지, 한 번에",
     "여행은 지금,",
-    "필요할 때 커리어·정착 가이드까지 자연스럽게."
+    "필요할 때, K-한류와 여행을 자연스럽게"
 ]
 
 html = "<div class='intro-wrap'><div class='intro-overlay'></div><div>"
