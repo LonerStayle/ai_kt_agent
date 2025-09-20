@@ -12,6 +12,8 @@ load_dotenv()
 
 st.set_page_config(page_title="영상 재생 중...", layout="wide")
 
+
+load_dotenv()
 video_dir = Path(os.getenv("PROJECT_ROOT") + "/src/data")
 import streamlit as st
 

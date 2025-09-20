@@ -85,15 +85,5 @@ async def chat_endpoint(
     mem.add_user(user_text)
     messages = mem.build_messages()
 
-    print(user_text)
-    print(image)
-    # 이미지가 있으면 바이트로 읽거나 파일로 저장
-    if image is not None:
-        raw_bytes = await image.read()
-        # 예: 저장
-        # with open(f"uploads/{image.filename}", "wb") as f:
-        #     f.write(raw_bytes)
-        # 예: 바로 LLM에 넘기기
-        # llm_response = call_llm(user_text, raw_bytes)
+    return StreamingResponse(chat_agent.chat(mem, messages, image), media_type="text/plain")
 
-    return StreamingResponse(chat_agent.chat(mem, messages), media_type="text/plain")

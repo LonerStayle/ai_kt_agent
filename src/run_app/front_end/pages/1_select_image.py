@@ -240,7 +240,6 @@ with btn_col:
             try:
                 st.session_state["step1_payload"] = payload
                 st.session_state["step1_images"] = choose_images
-                from pathlib import Path
                 st.switch_page(str(Path(__file__).parent / "0_waiting_video.py"))        
 
             except Exception as e:
