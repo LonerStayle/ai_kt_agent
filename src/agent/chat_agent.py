@@ -84,8 +84,8 @@ def main_chat(mem, messages):
         ]
         
         yield "\n" + json.dumps({"type": "images", "content": goods_images}) + "\n" # chunk 단위로 보내지 않고 한줄로 보내도록 처리
-        
-    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
+         
+    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "").replace("</assistant|>", "")
     mem.add_assistant(assistant_text)
 
 
@@ -108,19 +108,24 @@ Respond ONLY with one word: 'chat' or 'search'."""
     )
     return completion.choices[0].message.content.strip().lower()
 
-
-def chat(mem, messages, image):
+def chat(mem, messages, image_bytes: bytes | None):
     
-    if image:
-        print('exist image')
-        # 이미지가 있는 경우 사용자 채팅 자체를 '{image_kind}가 뭐야로 바꿔서 믿음에 질의'
-        image_name = infer_image_name(messages, image)
-        messages = f'{image_name}에 대한 정보 알려줘'
-        
-    user_text = messages[-1]["content"]
+    if image_bytes is not None:
+        print("exist image")
+
+        # ✅ 마지막 유저 메시지만 추출
+        last_user_text = messages[-1]["content"]
+        image_name = infer_image_name(last_user_text, image_bytes)
+        user_text = f"{image_name}에 대한 정보 알려줘"
+        messages.append({"role": "user", "content": user_text})
+    else:
+        user_text = messages[-1]["content"]
+
+    print(user_text)
+
     route = routing_with_gpt(user_text)
     print(f"[Router Decision] {route}")
-    
+
     if route == "chat":
         for token in main_chat(mem, messages):
             yield token
@@ -135,37 +140,32 @@ def chat(mem, messages, image):
             yield token
 
     else:
-        # fallback: 그냥 chat
         for token in main_chat(mem, messages):
             yield token
-
-def infer_image_name(user_text, image):
-    
+            
+def infer_image_name(user_text: str, image_bytes: bytes | None):
+    """이미지를 보고 한 단어로 된 장소/사물 이름을 추론"""
     messages = [
-        {"role": "system", "content": "너는 한국적 이미지를 보면 장소/물건 이름을 정확하게 판단 할 수 있는 이미지 전문가야"},
-        {"role": "user", "content": "응답은 간단하게 한 단어로 해줘 예를 들자면 다음과 같아 '요쿠르트 판매차', '경복궁, '남산'"}
+        {"role": "system", "content": "너는 한국적 이미지를 보면 장소/물건 이름을 정확하게 판단할 수 있는 이미지 전문가야"},
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "응답은 간단하게 한 단어로 해줘 예: '요쿠르트 판매차', '경복궁', '남산'"},
+                {"type": "text", "text": str(user_text)}  # ✅ 문자열 보장
+            ]
+        }
     ]
 
-    # 텍스트 추가
-    messages[1]["content"].append({
-        "type": "text",
-        "text": user_text
-    })
-
-    # 이미지 추가
-    if image is not None:
-        base64_image = base64.b64encode(image.read()).decode("utf-8")
-        
+    if image_bytes:
+        base64_image = base64.b64encode(image_bytes).decode("utf-8")
         messages[1]["content"].append({
             "type": "image_url",
             "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
         })
 
-    # LLM 호출
     response = gpt.chat.completions.create(
         model="gpt-5",
-        messages=messages,
-        temperature=0.0,
+        messages=messages
     )
-
-    return response.choices[0].message["content"]
+    
+    return response.choices[0].message.content

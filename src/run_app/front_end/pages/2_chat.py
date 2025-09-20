@@ -32,15 +32,6 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 image_add = """
 <style>
-#MainMenu, footer, header {visibility:hidden;}
-button[data-testid="stSidebarCollapseButton"],
-div[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarNav"]{display:none!important;}
-/* 채팅 페이드 제거 */
-div[data-testid="stChatMessage"],
-div[data-testid="stChatMessageContent"]{
-  opacity:1!important;transition:none!important;animation:none!important;
-}
 /* === 업로더를 아이콘 버튼처럼 === */
 div[data-testid="stFileUploader"]{
   width:40px!important; height:40px!important;
@@ -65,7 +56,7 @@ div[data-testid="stFileUploader"] .uploadedFile { display:none !important; }
 .preview-title{ color:#bbb; font-size:13px; margin:0 0 6px 2px; }
 </style>
 """
-#st.markdown(image_add, unsafe_allow_html=True)
+st.markdown(image_add, unsafe_allow_html=True)
 
 st.markdown("""
     <style>
@@ -130,24 +121,23 @@ if "step1_result" in st.session_state:
 
 # --- 이미지 관련 처리 ---
 # ===== 이미지 미리보기 =====            
-#preview_slot = st.empty()
-#if "uploaded_image" in st.session_state:
-#    with preview_slot.container():
-#        st.markdown("**첨부된 이미지 미리보기**")
-#        st.image(st.session_state["uploaded_image"])
-#        if st.button("✖️ 제거", key="remove_preview"):
-#            del st.session_state["uploaded_image"]
-#            preview_slot.empty()
-#
-## ===== 업로드 버튼 (입력창 바로 아래로 이동) =====            
-#uploaded_file = st.file_uploader(
-#    "이미지 업로드", type=["png","jpg","jpeg"],
-#    label_visibility="collapsed", key="chat_uploader_bottom"
-#)
-#if uploaded_file:
-#    st.session_state["uploaded_image"] = uploaded_file
-#
-#    # --- 이미지 관련 처리 끝
+preview_slot = st.empty()
+if "uploaded_image" in st.session_state:
+    with preview_slot.container():
+        st.markdown("**첨부된 이미지 미리보기**")
+        st.image(st.session_state["uploaded_image"])
+        if st.button("✖️ 제거", key="remove_preview"):
+            del st.session_state["uploaded_image"]
+            preview_slot.empty()
+
+# ===== 업로드 버튼 (입력창 바로 아래로 이동) =====            
+uploaded_file = st.file_uploader(
+    "이미지 업로드", type=["png","jpg","jpeg"],
+    label_visibility="collapsed", key="chat_uploader_bottom"
+)
+if uploaded_file:
+    st.session_state["uploaded_image"] = uploaded_file
+# --- 이미지 관련 처리 끝
 
 # --- 채팅 표시 ---
 if "messages" not in st.session_state:
@@ -174,12 +164,21 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
 
             files = None
             uf = st.session_state.get("uploaded_image", None)
+            
+            request_args = {
+                "method": "POST",
+                "url": "http://localhost:8000/chat",
+                "data": {"user_text": prompt},
+                "timeout": None,
+            }
+            
+            if uf is not None:
+                request_args["files"] = {
+                    "image": (uf.name, uf, uf.type or "application/octet-stream")
+                }
+            
             with httpx.stream(
-                "POST",
-                "http://localhost:8000/chat",
-                data={"user_text": prompt},
-                files=files,
-                timeout=None,
+                **request_args
             ) as r:
                 for chunk in r.iter_text():
                     if not chunk:

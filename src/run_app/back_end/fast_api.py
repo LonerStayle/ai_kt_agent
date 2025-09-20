@@ -84,6 +84,11 @@ async def chat_endpoint(
     mem = session_store.get(user_ip)
     mem.add_user(user_text)
     messages = mem.build_messages()
-
-    return StreamingResponse(chat_agent.chat(mem, messages, image), media_type="text/plain")
+    
+    # TODO byte화를 api에서 하지 않으면 이슈 발생하여 일단 처리
+    image_bytes: bytes | None = None
+    if image is not None:
+        image_bytes = await image.read()
+    
+    return StreamingResponse(chat_agent.chat(mem, messages, image_bytes), media_type="text/plain")
 
