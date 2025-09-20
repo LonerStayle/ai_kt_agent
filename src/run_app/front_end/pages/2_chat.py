@@ -58,7 +58,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 if "step1_result" in st.session_state:
     full_answer = st.session_state.step1_result["answer"]
     print(st.session_state.step1_result)
-    st.sidebar.header("📌 1단계 결과")
+    st.sidebar.header("📌 K 한류 기반 여행")
     st.sidebar.markdown(st.session_state.step1_result['summary'])
 
     for img_path in st.session_state.step1_result["images"]:
