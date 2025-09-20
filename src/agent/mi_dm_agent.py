@@ -53,7 +53,6 @@ def get_move_times(selected_places: list[SelectImage]):
         ])
         result_text = response.choices[0].message.content
         result_dict[f"{start} -> {end} 이동경로"] = result_text
-
     return result_dict
 
 def get_remaind_times(selected_places: list[SelectImage]):
@@ -134,6 +133,8 @@ def make_summary_one_line(trans_link_answer: str):
             model=gl.MODEL_NAME,
             messages=message,
             stream=True,
-            options={"num_predict": 1000},
+            options={
+                "num_predict": 1000
+            },
         )
     )

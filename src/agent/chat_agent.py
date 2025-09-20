@@ -111,7 +111,7 @@ def main_chat(mem, messages):
         ]
         
         yield "\n" + json.dumps({"type": "images", "content": goods_images}) + "\n" # chunk 단위로 보내지 않고 한줄로 보내도록 처리
-    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
+    assistant_text = assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "")
     mem.add_assistant(assistant_text)
 
 
@@ -140,6 +140,8 @@ import re
 def is_english_num_space(s: str) -> bool:
     return bool(re.fullmatch(r"[ -~]+", s))
 
+
+
 def chat(mem, messages):
     user_text = messages[-1]["content"]
     if is_english_num_space(user_text):
@@ -159,7 +161,7 @@ def chat(mem, messages):
         obs_text = tavily_chat(user_text, max_results=1)
         messages.append({
             "role": "system",
-            "content": f"🔎 Tavily 검색 결과:\n{obs_text}\n\n위 내용을 반영해서 답변을 보강하기"
+            "content": f"🔎 Tavily 검색 결과:\n{obs_text}\n\n위 내용을 반영해서 답변을 보강하기\n답변에 절대<|system|>와 같은 이상한 단어 넣지 말기"
         })
         for token in main_chat(mem, messages):
             yield token
