@@ -85,7 +85,7 @@ def main_chat(mem, messages):
         
         yield "\n" + json.dumps({"type": "images", "content": goods_images}) + "\n" # chunk 단위로 보내지 않고 한줄로 보내도록 처리
          
-    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "").replace("</assistant|>", "")
+    assistant_text.replace("<|system|>", "").replace("<|user|>", "").replace("<|assistant|>", "").replace("</assistant|>", "").replace("</assistant>", "").replace("</|assistant|>", "")
     mem.add_assistant(assistant_text)
 
 

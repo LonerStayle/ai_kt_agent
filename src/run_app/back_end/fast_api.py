@@ -80,6 +80,7 @@ async def chat_endpoint(
     user_text: str = Form(...),               # 텍스트는 Form 필드
     image: UploadFile | None = File(None),    # 이미지는 File 필드 (옵션)
 ):
+    
     user_ip = get_user_ip(request)
     mem = session_store.get(user_ip)
     mem.add_user(user_text)

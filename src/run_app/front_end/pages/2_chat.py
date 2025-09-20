@@ -54,9 +54,46 @@ div[data-testid="stFileUploader"] small,
 div[data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
 div[data-testid="stFileUploader"] .uploadedFile { display:none !important; }
 .preview-title{ color:#bbb; font-size:13px; margin:0 0 6px 2px; }
+
+/* 파일 업로드 버튼을 화면 하단 좌측에 고정 */
+div[data-testid="stFileUploader"] {
+    position: fixed;
+    bottom: 57px; /* chat_input 바로 위 */
+    right: 1111px; /* TODO 화면 사이즈 마다 조정 필요할 수 있음 확인! - 숫자가 커질수록 왼쪽으로 이동 */ 
+    z-index: 100;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+div[data-testid="stFileUploader"]:hover { background:#666; }
 </style>
 """
 st.markdown(image_add, unsafe_allow_html=True)
+
+preview_slot = """
+<style>
+.preview-box {
+    position: fixed;
+    bottom: 0;          /* 화면 맨 아래 */
+    left: 0;
+    right: 0;
+    background: #262730;
+    padding: 10px 20px;
+    border-top: 1px solid #444;
+    z-index: 999;
+}
+.preview-box img {
+    max-height: 120px;
+    border-radius: 8px;
+}
+</style>
+"""
+
+st.markdown(preview_slot, unsafe_allow_html=True)
 
 st.markdown("""
     <style>
@@ -120,25 +157,17 @@ if "step1_result" in st.session_state:
     # --- 사이드바 chat 요약 수정 끝 ---
 
 # --- 이미지 관련 처리 ---
-# ===== 이미지 미리보기 =====            
-preview_slot = st.empty()
-if "uploaded_image" in st.session_state:
-    with preview_slot.container():
-        st.markdown("**첨부된 이미지 미리보기**")
-        st.image(st.session_state["uploaded_image"])
-        if st.button("✖️ 제거", key="remove_preview"):
-            del st.session_state["uploaded_image"]
-            preview_slot.empty()
-
 # ===== 업로드 버튼 (입력창 바로 아래로 이동) =====            
 uploaded_file = st.file_uploader(
     "이미지 업로드", type=["png","jpg","jpeg"],
     label_visibility="collapsed", key="chat_uploader_bottom"
 )
+
 if uploaded_file:
     st.session_state["uploaded_image"] = uploaded_file
 # --- 이미지 관련 처리 끝
 
+            
 # --- 채팅 표시 ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -149,12 +178,21 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("메세지를 입력하세요.."):
+prompt = st.chat_input("메세지를 입력하세요..")
 
-    # 사용자 메시지 표시
+if prompt or uploaded_file :
+    
+    if prompt is None:
+        prompt = '이 사진에 대한 정보 알려줘'
+    
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
     with st.chat_message("user"):
+        
         st.markdown(prompt)
+        
+        if "uploaded_image" in st.session_state:
+            st.image(st.session_state["uploaded_image"], width=250)
 
     # 어시스턴트 응답 표시 (스트리밍)
     with st.chat_message("assistant"):
@@ -162,9 +200,6 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
             message_placeholder = st.empty()
             full_response = ""
 
-            files = None
-            uf = st.session_state.get("uploaded_image", None)
-            
             request_args = {
                 "method": "POST",
                 "url": "http://localhost:8000/chat",
@@ -172,10 +207,14 @@ if prompt := st.chat_input("메세지를 입력하세요.."):
                 "timeout": None,
             }
             
+            files = None
+            uf = st.session_state.get("uploaded_image", None)
+            
             if uf is not None:
                 request_args["files"] = {
                     "image": (uf.name, uf, uf.type or "application/octet-stream")
                 }
+                del st.session_state["uploaded_image"]
             
             with httpx.stream(
                 **request_args
