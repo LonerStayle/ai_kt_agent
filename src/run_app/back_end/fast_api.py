@@ -30,10 +30,6 @@ def get_user_ip(request: Request):
         user_ip = request.client.host
     return user_ip
 
-@app.get("/title")
-def get_title():
-    return {"title": "서울 여행 루트 추천"}
-
 class PlaceRequest(BaseModel):
     lang: str
     selects: List[SelectImage]
@@ -45,12 +41,13 @@ def send_place_and_lang(req: PlaceRequest, request: Request):
     selects = req.selects
 
     answer = head.send_prompt(selects)
-    if lang == "en":
-        answer = head.translate_answer(answer)
+    # if lang == "en":
+    #     answer = head.translate_answer(answer)
 
     summary = head.make_summary_one_line(answer)
-    if lang == "en":
-        summary = head.translate_answer(summary)
+    print(summary)
+    # if lang == "en":
+    #     summary = head.translate_answer(summary)
     
     user_ip = get_user_ip(request)
     mem = session_store.get(user_ip)

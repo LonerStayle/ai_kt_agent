@@ -91,7 +91,7 @@ if "step1_payload" in st.session_state:
         # ✅ 자동으로 다음 페이지 이동
         time.sleep(1)  # 영상 잠깐 보여주고 넘어가기 (선택)
         from pathlib import Path
-        st.switch_page(str(Path(__file__).parent / "2_chat_goods.py"))
+        st.switch_page(str(Path(__file__).parent / "2_chat.py"))
 
     except Exception as e:
         st.error(f"API 호출 실패: {e}")

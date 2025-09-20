@@ -239,6 +239,18 @@ summary_pro_prompt = """
 3. 케이팝데몬헌터스 관련 내용(장소, 굿즈)가 포함되도록
 </rule>
 """
+summary_pro_prompt_v2 = """
+
+    너는 최고의 여행 기획자이자 카피라이터야.
+    아래 여행 경로 요약을 읽고, 
+    무조건 3문장 이내으로 자연스럽게 요약해줘.
+    띄어쓰기에 주의하고 외국인들이 읽으면서 여행에 대한 기대를 할 수 있도록 해줘
+    
+    특히 1) 여행 테마, 2) 주요 방문지, 3) 기대 효과를 포함해.
+    
+    응답은 한국어로 해 
+    여행 경로: {answer}
+"""
 
 translate_prompt = """
 <role>
@@ -313,8 +325,8 @@ def build_translate_prompts(answer: str):
     ]
 
 def build_summary_prompts(answer: str):
-    
+    content = summary_pro_prompt_v2.format(answer=answer)
     return [
-        {"role": "system", "content": summary_pro_prompt.strip()},
+        {"role": "system", "content": content.strip()},
         {"role": "user", "content": f"여행코스와 세부 내용: {answer}"},
     ]
